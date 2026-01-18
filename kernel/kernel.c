@@ -2,7 +2,8 @@
 #include "gdt.h"
 #include "idt.h"
 #include "kbd.h"
-#include "vfs.h"
+#include "vfs.h"   // Contient maintenant la déclaration de sys_ls()
+#include "string.h" // INDISPENSABLE pour strcmp()
 
 void shell_loop() {
     char buffer[128];

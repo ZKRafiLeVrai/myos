@@ -1,12 +1,20 @@
 #ifndef VFS_H
 #define VFS_H
-#define MAX_NODES 100
+
+#include <stdint.h>
+
+#define MAX_FILES 64
+
 typedef struct {
     char name[32];
-    int is_dir;
-    int parent_idx;
-} vfs_node_t;
+    uint32_t size;
+    uint32_t inode;
+    char content[512];
+    uint8_t type; // 1: Dir, 2: File
+} inode_t;
+
 void vfs_init();
+void sys_ls();
 void vfs_mkdir(char* name);
-void vfs_list();
+
 #endif

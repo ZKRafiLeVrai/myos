@@ -1,5 +1,6 @@
 #include "vfs.h"
 #include "string.h"
+#include "vga.h"
 
 #define MAX_FILES 64
 
