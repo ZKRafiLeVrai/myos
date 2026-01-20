@@ -15,6 +15,5 @@ typedef struct {
 
 void vfs_init();
 void sys_ls();
-void vfs_mkdir(char* name);
 
 #endif

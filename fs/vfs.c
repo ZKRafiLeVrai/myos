@@ -2,16 +2,7 @@
 #include "string.h"
 #include "vga.h"
 
-#define MAX_FILES 64
-
-typedef struct {
-    char name[32];
-    uint32_t size;
-    uint32_t inode;
-    char content[512];
-    uint8_t type; // 1: Dir, 2: File
-} inode_t;
-
+// On ne définit PLUS la struct ici, on utilise celle du .h
 inode_t root_fs[MAX_FILES];
 int file_count = 0;
 
@@ -27,6 +18,7 @@ void vfs_init() {
 }
 
 void sys_ls() {
+    kprint("Type  Name\n");
     for(int i = 0; i < file_count; i++) {
         if(root_fs[i].type == 1) kprint_color("[DIR] ", 0x0B);
         else kprint_color("[FIL] ", 0x07);

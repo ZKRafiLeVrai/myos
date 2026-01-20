@@ -1,8 +1,8 @@
 #ifndef STRING_H
 #define STRING_H
 
-int strcmp(char *s1, char *s2);
-int strlen(char *s);
-void strcpy(char *dest, char *src);
+int strcmp(const char *s1, const char *s2);
+int strlen(const char *s);
+void strcpy(char *dest, const char *src);
 
 #endif
