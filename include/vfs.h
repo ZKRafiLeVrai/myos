@@ -19,4 +19,5 @@ void vfs_init();
 void sys_ls();
 char* vfs_read_file(const char* filename);
 void vfs_create_file(const char* filename, const char* content);
+void mini_vi(char* filename);
 #endif

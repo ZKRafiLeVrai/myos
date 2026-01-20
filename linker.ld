@@ -2,11 +2,13 @@ ENTRY(_start)
 
 SECTIONS
 {
-    . = 1M; /* Le noyau commence à 1Mo */
+    /* On commence à 1Mo */
+    . = 1M;
 
     .text BLOCK(4K) : ALIGN(4K)
     {
-        *(.multiboot)
+        /* Le header Multiboot DOIT être dans les 8 premiers Ko du fichier */
+        KEEP(*(.multiboot))
         *(.text)
     }
 
@@ -25,7 +27,5 @@ SECTIONS
         *(COMMON)
         *(.bss)
     }
-
-    /* AJOUTE CETTE LIGNE ICI */
-    end = .;
+end = .;  /* AJOUTE CETTE LIGNE JUSTE AVANT LA DERNIÈRE ACCOLADE */
 }

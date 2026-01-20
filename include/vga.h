@@ -1,11 +1,12 @@
 #ifndef VGA_H
 #define VGA_H
 
-void kprint(const char* str);
-void kprint_color(const char* str, unsigned char color);
-void kprint_char(char c); // Doit être ici
-void kprint_char_color(char c, unsigned char color);
-void clear_screen();
+#include <stdint.h>
+
+void vga_clear();
+void kprint(char* str);
+void kprint_char(char c);
+void kprint_color(char* str, uint8_t color);
 void newline();
 void backspace();
 
