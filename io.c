@@ -19,3 +19,10 @@ uint32_t inl(uint16_t port) {
     __asm__ volatile("inl %1, %0" : "=a"(result) : "Nd"(port));
     return result;
 }
+
+void sys_reboot() {
+    uint8_t good = 0x02;
+    while (good & 0x02)
+        good = inb(0x64);
+    outb(0x64, 0xFE); // Envoie la commande de reset au contrôleur 8042
+}

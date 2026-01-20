@@ -3,17 +3,20 @@
 
 #include <stdint.h>
 
-#define MAX_FILES 64
+#define MAX_FILES 32
+#define MAX_FILENAME 64
 
+// Structure d'un fichier (Inode simplifié)
 typedef struct {
-    char name[32];
+    char name[MAX_FILENAME];
     uint32_t size;
-    uint32_t inode;
-    char content[512];
-    uint8_t type; // 1: Dir, 2: File
+    char content[1024]; // Taille max d'un petit fichier en RAM
+    uint8_t active;     // 1 si le fichier existe, 0 sinon
 } inode_t;
 
+// Prototypes des fonctions
 void vfs_init();
 void sys_ls();
-
+char* vfs_read_file(const char* filename);
+void vfs_create_file(const char* filename, const char* content);
 #endif

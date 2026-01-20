@@ -7,6 +7,7 @@
 #include "printk.h"
 #include "pci.h"
 #include "io.h"
+#include "rtc.h"  // Ajouté
 
 void handle_command(char* input) {
     int len = strlen(input);
@@ -18,8 +19,25 @@ void handle_command(char* input) {
     else if (strcmp(input, "dmesg") == 0) sys_dmesg();
     else if (strcmp(input, "pci") == 0) pci_scan();
     else if (strcmp(input, "clear") == 0) clear_screen();
+   else if (strcmp(input, "reboot") == 0) {
+        kprint("System rebooting...\n");
+        sys_reboot();
+    }
     else if (strcmp(input, "uname") == 0) kprint("MyOS Linux 1.0.0-PRO (AZERTY)\n");
+   else if (strcmp(input, "touch") == 0) {
+        vfs_create_file("nouveau.txt", "Ceci est un nouveau fichier.\n");
+        kprint("Fichier 'nouveau.txt' cree. Tapez 'ls' pour voir.\n");
+    }
     else if (strcmp(input, "help") == 0) kprint("Commands: ls, dmesg, pci, clear, uname, help\n");
+   else if (strcmp(input, "cat") == 0) {
+        // Pour l'instant, on lit un fichier de test
+        char* content = vfs_read_file("motd.txt");
+        if (content) kprint(content);
+        else kprint("Erreur: Fichier introuvable.\n");
+    }
+    else if (strcmp(input, "date") == 0) {
+        show_time();
+    }
     else if (len > 0) {
         kprint("bash: "); kprint(input); kprint(": command not found\n");
     }
