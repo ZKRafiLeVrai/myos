@@ -4,78 +4,65 @@
 #include "kbd.h"
 #include "vfs.h"
 #include "string.h"
-
-// Prototypes internes pour éviter les avertissements
-void shell_loop();
-void handle_command(char* input);
-
-// LA FONCTION QUE LE BOOT.S RECHERCHE
-void kernel_main() {
-    // 1. Initialisation du matériel de base
-    gdt_install();
-    idt_install();
-    
-    // 2. Initialisation des services
-    vfs_init();
-    clear_screen();
-    
-    // 3. Message de bienvenue (Linux Style)
-    kprint_color("Welcome to MyOS Linux Kernel v1.0\n", 0x0D);
-    kprint("[OK] CPU Descriptors Loaded\n");
-    kprint("[OK] Virtual File System Mounted\n");
-    kprint("[OK] Keyboard Driver Active\n\n");
-    
-    // 4. Lancement de l'interface utilisateur
-    shell_loop();
-}
+#include "printk.h"
+#include "pci.h"
+#include "io.h"
 
 void handle_command(char* input) {
-    if (strcmp(input, "ls") == 0) {
-        sys_ls();
-    } else if (strcmp(input, "clear") == 0) {
-        clear_screen();
-    } else if (strcmp(input, "help") == 0) {
-        kprint("Commands: ls, clear, help, uname, whoami\n");
-    } else if (strcmp(input, "uname") == 0) {
-        kprint("MyOS Linux 1.0.0-release i386\n");
-    } else if (strcmp(input, "whoami") == 0) {
-        kprint("root\n");
-    } else if (strlen(input) > 0) {
-        kprint("bash: ");
-        kprint(input);
-        kprint(": command not found\n");
+    int len = strlen(input);
+    while (len > 0 && (input[len-1] == ' ' || input[len-1] == '\n')) {
+        input[--len] = '\0';
+    }
+
+    if (strcmp(input, "ls") == 0) sys_ls();
+    else if (strcmp(input, "dmesg") == 0) sys_dmesg();
+    else if (strcmp(input, "pci") == 0) pci_scan();
+    else if (strcmp(input, "clear") == 0) clear_screen();
+    else if (strcmp(input, "uname") == 0) kprint("MyOS Linux 1.0.0-PRO (AZERTY)\n");
+    else if (strcmp(input, "help") == 0) kprint("Commands: ls, dmesg, pci, clear, uname, help\n");
+    else if (len > 0) {
+        kprint("bash: "); kprint(input); kprint(": command not found\n");
     }
 }
 
 void shell_loop() {
     char buffer[128];
     int i = 0;
-    
-    kprint_color("root@myos:/# ", 0x0A); // Prompt vert
+    kprint_color("root@myos:/# ", 0x0A);
 
     while(1) {
         unsigned char sc = kbd_read_scancode();
         if (sc == 0) continue;
+        if (sc & 0x80) { scancode_to_ascii(sc); continue; }
 
-        if (sc == 0x1C) { // Touche ENTREE
+        if (sc == 0x1C) {
             buffer[i] = '\0';
             newline();
             handle_command(buffer);
             i = 0;
             kprint_color("root@myos:/# ", 0x0A);
-        } 
-        else if (sc == 0x0E) { // Touche BACKSPACE
-            if (i > 0) {
-                i--;
-                backspace();
-            }
-        } 
-        else {
+        } else if (sc == 0x0E && i > 0) {
+            i--; backspace();
+        } else {
             char c = scancode_to_ascii(sc);
-            if (c && i < 127) {
-                buffer[i++] = c;
-                kprint_char(c);
-            }
+            if (c && i < 127) { buffer[i++] = c; kprint_char(c); }
         }
+        for(volatile int p = 0; p < 20000; p++); 
     }
+}
+
+void kernel_main() {
+    clear_screen();
+    gdt_install();
+    idt_install();
+    vfs_init();
+    
+    printk(LOG_INFO, "Linux version 1.0.0-PRO (gcc 11.4.0) 2026");
+    printk(LOG_INFO, "CPU: GDT/IDT Loaded");
+    printk(LOG_INFO, "PCI: Scanning devices...");
+    pci_scan(); 
+
+    kprint_color("\nWelcome to MyOS (tty1)\n", 0x0B);
+    kprint("Keyboard: AZERTY FR Active\n\n");
+    shell_loop();
 }
