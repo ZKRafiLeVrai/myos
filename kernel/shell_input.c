@@ -56,9 +56,7 @@ int shell_input_read_key(void) {
     
     /* Ignore key releases (high bit set) */
     if (scancode & 0x80) {
-        if (scancode == 0xE0 + 0x80) {
-            extended = 0;
-        }
+        extended = 0;  // Clear extended flag on key release
         return 0;
     }
     
@@ -87,7 +85,6 @@ int shell_input_read_key(void) {
 static void redraw_line(shell_input_t *input, const char *prompt) {
     /* Save cursor position */
     int saved_row = vga_get_cursor_row();
-    int saved_col = vga_get_cursor_col();
     
     /* Move to start of line and clear it */
     vga_set_cursor(saved_row, 0);
@@ -97,7 +94,7 @@ static void redraw_line(shell_input_t *input, const char *prompt) {
     
     /* Redraw prompt and input */
     vga_set_cursor(saved_row, 0);
-    printk(prompt);
+    vga_write(prompt, strlen(prompt));
     int prompt_len = strlen((char *)prompt);
     
     /* Display buffer starting from position that fits on screen */
@@ -239,7 +236,7 @@ char* shell_input_read_line(shell_input_t *input, const char *prompt) {
             vga_clear_screen();
             input->screen_row = 0;
             vga_set_cursor(0, 0);
-            printk((char *)prompt);
+            vga_write(prompt, strlen(prompt));
             int prompt_len = strlen((char *)prompt);
             for (int i = 0; i < input->buffer_len; i++) {
                 vga_putc(input->buffer[i]);
