@@ -8,5 +8,6 @@ void kprint_char_color(char c, unsigned char color);
 void clear_screen();
 void newline();
 void backspace();
+void scroll_screen();
 
 #endif

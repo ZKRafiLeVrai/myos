@@ -2,10 +2,11 @@
 #include "io.h"
 #include "vga.h"
 
+// Global tick counter incremented by timer interrupt
 uint32_t tick = 0;
 
 void timer_callback() {
-    tick++;
+    tick++; // Incremented ~1000 times per second at default 1kHz frequency
 }
 
 void init_timer(uint32_t frequency) {

@@ -19,4 +19,6 @@ void vfs_init();
 void sys_ls();
 char* vfs_read_file(const char* filename);
 void vfs_create_file(const char* filename, const char* content);
+void vfs_delete_file(const char* filename);
+
 #endif

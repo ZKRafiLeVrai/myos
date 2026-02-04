@@ -21,7 +21,7 @@ void handle_command(char* input) {
     else if (strcmp(input, "clear") == 0) clear_screen();
    else if (strcmp(input, "reboot") == 0) {
         kprint("System rebooting...\n");
-        sys_reboot();
+        __asm__ __volatile__("cli; hlt");
     }
     else if (strcmp(input, "uname") == 0) kprint("MyOS Linux 1.0.0-PRO (AZERTY)\n");
    else if (strcmp(input, "touch") == 0) {

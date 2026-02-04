@@ -31,17 +31,35 @@ void sys_ls() {
     }
 }
 void vfs_create_file(const char* filename, const char* content) {
+    if (!filename || !content) {
+        printk(LOG_ERR, "VFS: Invalid filename or content pointer.");
+        return;
+    }
     for(int i = 0; i < MAX_FILES; i++) {
         if(!root_fs[i].active) {
-            strncpy(root_fs[i].name, filename, MAX_FILENAME);
-            strncpy(root_fs[i].content, content, 1024);
+            strncpy(root_fs[i].name, filename, MAX_FILENAME - 1);
+            root_fs[i].name[MAX_FILENAME - 1] = '\0';
+            strncpy(root_fs[i].content, content, 1024 - 1);
+            root_fs[i].content[1023] = '\0';
             root_fs[i].size = strlen(content);
             root_fs[i].active = 1;
-            printk(LOG_INFO, "VFS: Fichier cree.");
+            printk(LOG_INFO, "VFS: Fichier cree: %s", filename);
             return;
         }
     }
-    kprint("Erreur: VFS plein.\n");
+    printk(LOG_ERR, "VFS: Filesystem full, cannot create %s.", filename);
+}
+
+void vfs_delete_file(const char* filename) {
+    if (!filename) return;
+    for(int i = 0; i < MAX_FILES; i++) {
+        if(root_fs[i].active && strcmp(root_fs[i].name, filename) == 0) {
+            root_fs[i].active = 0;
+            printk(LOG_INFO, "VFS: Fichier supprime: %s", filename);
+            return;
+        }
+    }
+    printk(LOG_WARN, "VFS: File not found: %s", filename);
 }
 
 char* vfs_read_file(const char* filename) {

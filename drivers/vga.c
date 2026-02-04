@@ -3,19 +3,21 @@
 char* video_memory = (char*) 0xB8000;
 int cursor_pos = 0;
 
-// Cette fonction manquait ou était mal nommée
-void kprint_char(char c) {
-    kprint_char_color(c, 0x0F); // Utilise le blanc par défaut
-}
-
 void kprint_char_color(char c, unsigned char color) {
     if (c == '\n') {
         newline();
         return;
     }
-    video_memory[cursor_pos * 2] = c;
-    video_memory[cursor_pos * 2 + 1] = color;
-    cursor_pos++;
+    if (cursor_pos < 80 * 25) {
+        video_memory[cursor_pos * 2] = c;
+        video_memory[cursor_pos * 2 + 1] = color;
+        cursor_pos++;
+        scroll_screen();
+    }
+}
+
+void kprint_char(char c) {
+    kprint_char_color(c, 0x0F); // Utilise le blanc par défaut
 }
 
 void kprint(const char* str) {
@@ -32,6 +34,23 @@ void clear_screen() {
         video_memory[i * 2 + 1] = 0x07;
     }
     cursor_pos = 0;
+}
+
+// Scroll screen up by one line and move cursor appropriately
+void scroll_screen() {
+    if (cursor_pos >= 80 * 25) {
+        // Shift all lines up by one
+        for (int i = 0; i < 80 * 24; i++) {
+            video_memory[i * 2]     = video_memory[(i + 80) * 2];
+            video_memory[i * 2 + 1] = video_memory[(i + 80) * 2 + 1];
+        }
+        // Clear last line
+        for (int i = 0; i < 80; i++) {
+            video_memory[(24 * 80 + i) * 2]     = ' ';
+            video_memory[(24 * 80 + i) * 2 + 1] = 0x07;
+        }
+        cursor_pos = 24 * 80;
+    }
 }
 
 void newline() {
