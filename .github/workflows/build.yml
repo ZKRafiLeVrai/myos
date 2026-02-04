@@ -1,0 +1,40 @@
+name: Build MyOS (i386)
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-multilib nasm binutils build-essential xorriso grub-pc-bin
+
+      - name: Build
+        run: |
+          make -j$(nproc)
+
+      - name: Show outputs
+        run: |
+          echo "Artifacts in workspace:"
+          ls -la || true
+
+      - name: Upload myos.bin
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: myos-bin
+          path: myos.bin
+
+      - name: Upload myos.iso
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: myos-iso
+          path: myos.iso
