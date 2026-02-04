@@ -12,6 +12,7 @@
 #include "vga.h"
 #include "kbd.h"
 #include "string.h"
+#include "printk.h"
 
 void shell_input_init(shell_input_t *input) {
     input->cursor_pos = 0;

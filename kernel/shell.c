@@ -2,6 +2,7 @@
 #include "string.h"
 #include "printk.h"
 #include "vga.h"
+#include "vfs.h"
 
 // Parse "command arg1 arg2 ..." into cmd_args_t
 cmd_args_t shell_parse_command(char* input) {

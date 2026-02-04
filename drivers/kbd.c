@@ -93,9 +93,7 @@ char scancode_to_ascii(unsigned char sc) {
     // Ignorer le relâchement des touches normales
     if (sc & 0x80) return 0;
 
-    // Touches spéciales (non-printable) avec Ctrl
-    if (ctrl_active) {
-        switch étendues (flèches, etc.) - précédées par 0xE0
+    // Touches étendues (flèches, etc.) - précédées par 0xE0
     if (extended_key) {
         extended_key = 0;
         switch (sc) {
@@ -113,7 +111,9 @@ char scancode_to_ascii(unsigned char sc) {
         }
     }
     
-    // Touches (sc) {
+    // Touches spéciales (non-printable) avec Ctrl
+    if (ctrl_active) {
+        switch (sc) {
             case 0x2E: return 3;   // Ctrl+C
             case 0x20: return 4;   // Ctrl+D
             case 0x26: return 12;  // Ctrl+L (clear)
