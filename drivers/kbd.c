@@ -97,17 +97,19 @@ char scancode_to_ascii(unsigned char sc) {
     if (extended_key) {
         extended_key = 0;
         switch (sc) {
-            case 0x48: return 0x48;  // UP arrow
-            case 0x50: return 0x50;  // DOWN arrow
-            case 0x4B: return 0x4B;  // LEFT arrow
-            case 0x4D: return 0x4D;  // RIGHT arrow
-            case 0x47: return 0x47;  // HOME key
-            case 0x4F: return 0x4F;  // END key
-            case 0x49: return 0x49;  // PAGE UP
-            case 0x51: return 0x51;  // PAGE DOWN
-            case 0x52: return 0x52;  // INSERT
-            case 0x53: return 0x53;  // DELETE
-            default: return 0;
+            case 0x48:  // UP arrow
+            case 0x50:  // DOWN arrow
+            case 0x4B:  // LEFT arrow
+            case 0x4D:  // RIGHT arrow
+            case 0x47:  // HOME key
+            case 0x4F:  // END key
+            case 0x49:  // PAGE UP
+            case 0x51:  // PAGE DOWN
+            case 0x52:  // INSERT
+            case 0x53:  // DELETE
+                return 0;  // Return 0 - let shell_input_read_key() handle it
+            default: 
+                return 0;
         }
     }
     
