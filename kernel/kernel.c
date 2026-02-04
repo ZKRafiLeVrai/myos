@@ -7,7 +7,8 @@
 #include "printk.h"
 #include "pci.h"
 #include "io.h"
-#include "rtc.h"  // Ajouté
+#include "rtc.h"
+#include "stats.h"
 
 void handle_command(char* input) {
     int len = strlen(input);
@@ -39,6 +40,7 @@ void handle_command(char* input) {
         kprint("dmesg   - Show kernel log buffer\n");
         kprint("pci     - Scan PCI devices\n");
         kprint("date    - Show current time\n");
+        kprint("stats   - Show kernel statistics\n");
         kprint("uname   - Show system info\n");
         kprint("clear   - Clear screen\n");
         kprint("reboot  - Reboot system\n");
@@ -55,6 +57,9 @@ void handle_command(char* input) {
     }
     else if (strcmp(input, "uptime") == 0) {
         kprint("Kernel uptime: Please implement timer integration.\n");
+    }
+    else if (strcmp(input, "stats") == 0) {
+        stats_print();
     }
     else if (len > 0) {
         kprint("bash: "); kprint(input); kprint(": command not found\n");
@@ -92,6 +97,7 @@ void kernel_main() {
     gdt_install();
     idt_install();
     vfs_init();
+    stats_init();
     
     printk(LOG_INFO, "Linux version 1.0.0-PRO (gcc 11.4.0) 2026");
     printk(LOG_INFO, "CPU: GDT/IDT Loaded");
@@ -99,6 +105,7 @@ void kernel_main() {
     pci_scan(); 
 
     kprint_color("\nWelcome to MyOS (tty1)\n", 0x0B);
-    kprint("Keyboard: AZERTY FR Active\n\n");
+    kprint("Keyboard: AZERTY FR Active\n");
+    kprint("Type 'help' for available commands.\n\n");
     shell_loop();
 }

@@ -11,6 +11,7 @@ OBJ = boot/boot.o \
       kernel/kernel.o \
       kernel/printk.o \
       kernel/mem.o \
+      kernel/stats.o \
       cpu/gdt.o \
       cpu/idt.o \
       cpu/isr.o \

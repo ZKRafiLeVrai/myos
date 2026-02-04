@@ -20,5 +20,6 @@ void sys_ls();
 char* vfs_read_file(const char* filename);
 void vfs_create_file(const char* filename, const char* content);
 void vfs_delete_file(const char* filename);
+int vfs_count_active_files();
 
 #endif

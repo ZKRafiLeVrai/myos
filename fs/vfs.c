@@ -62,6 +62,15 @@ void vfs_delete_file(const char* filename) {
     printk(LOG_WARN, "VFS: File not found: %s", filename);
 }
 
+// Count active files for statistics
+int vfs_count_active_files() {
+    int count = 0;
+    for(int i = 0; i < MAX_FILES; i++) {
+        if(root_fs[i].active) count++;
+    }
+    return count;
+}
+
 char* vfs_read_file(const char* filename) {
     for(int i = 0; i < MAX_FILES; i++) {
         if(root_fs[i].active && strcmp(root_fs[i].name, filename) == 0) {
