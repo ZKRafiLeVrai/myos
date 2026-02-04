@@ -25,6 +25,7 @@ unsigned char azerty_shift_map[] = {
 static int alt_active = 0;
 static int ctrl_active = 0;
 static int num_lock = 1;
+static int extended_key = 0;
 
 unsigned char kbd_read_scancode() {
     if (inb(0x64) & 1) {
@@ -34,6 +35,12 @@ unsigned char kbd_read_scancode() {
 }
 
 char scancode_to_ascii(unsigned char sc) {
+    // Handle extended key prefix (0xE0)
+    if (sc == 0xE0) {
+        extended_key = 1;
+        return 0;
+    }
+    
     // Gestion du SHIFT (Pressé)
     if (sc == 0x2A || sc == 0x36) { 
         shift_active = 1; 
@@ -47,14 +54,15 @@ char scancode_to_ascii(unsigned char sc) {
     }
     
     // Gestion de CTRL (Pressé)
-    if (sc == 0x1D) {
+    if (sc == 0x1D && !extended_key) {
         ctrl_active = 1;
         return 0;
     }
     
-    // Gestion de CTRL (Relâché) - scancode 0x9D
-    if (sc == 0x9D) {
+    // Gestion de CTRL (Relâché)
+    if ((sc == 0x9D || sc == 0x1D) && extended_key) {
         ctrl_active = 0;
+        extended_key = 0;
         return 0;
     }
     
@@ -87,7 +95,25 @@ char scancode_to_ascii(unsigned char sc) {
 
     // Touches spéciales (non-printable) avec Ctrl
     if (ctrl_active) {
+        switch étendues (flèches, etc.) - précédées par 0xE0
+    if (extended_key) {
+        extended_key = 0;
         switch (sc) {
+            case 0x48: return 0x48;  // UP arrow
+            case 0x50: return 0x50;  // DOWN arrow
+            case 0x4B: return 0x4B;  // LEFT arrow
+            case 0x4D: return 0x4D;  // RIGHT arrow
+            case 0x47: return 0x47;  // HOME key
+            case 0x4F: return 0x4F;  // END key
+            case 0x49: return 0x49;  // PAGE UP
+            case 0x51: return 0x51;  // PAGE DOWN
+            case 0x52: return 0x52;  // INSERT
+            case 0x53: return 0x53;  // DELETE
+            default: return 0;
+        }
+    }
+    
+    // Touches (sc) {
             case 0x2E: return 3;   // Ctrl+C
             case 0x20: return 4;   // Ctrl+D
             case 0x26: return 12;  // Ctrl+L (clear)
