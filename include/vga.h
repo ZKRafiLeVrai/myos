@@ -11,6 +11,7 @@ void newline();
 void backspace();
 void scroll_screen();
 void vga_putc(char c);
+void vga_write(const char* str, int len);
 int vga_get_cursor_row(void);
 int vga_get_cursor_col(void);
 void vga_set_cursor(int row, int col);

@@ -88,3 +88,9 @@ void vga_set_cursor(int row, int col) {
     if (cursor_pos < 0) cursor_pos = 0;
     if (cursor_pos >= 80 * 25) cursor_pos = 80 * 25 - 1;
 }
+
+void vga_write(const char* str, int len) {
+    for (int i = 0; i < len && str[i]; i++) {
+        kprint_char(str[i]);
+    }
+}
