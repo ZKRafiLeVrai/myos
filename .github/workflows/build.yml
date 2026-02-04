@@ -14,7 +14,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-multilib nasm binutils build-essential xorriso grub-pc-bin
+          sudo apt-get install -y gcc-multilib nasm binutils build-essential xorriso grub-pc-bin mtools
 
       - name: Build
         run: |
