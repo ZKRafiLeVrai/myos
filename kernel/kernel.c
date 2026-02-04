@@ -9,6 +9,7 @@
 #include "io.h"
 #include "rtc.h"
 #include "stats.h"
+#include "shell.h"
 
 void handle_command(char* input) {
     int len = strlen(input);
@@ -16,53 +17,47 @@ void handle_command(char* input) {
         input[--len] = '\0';
     }
 
-    if (strcmp(input, "ls") == 0) sys_ls();
-    else if (strcmp(input, "dmesg") == 0) sys_dmesg();
-    else if (strcmp(input, "pci") == 0) pci_scan();
-    else if (strcmp(input, "clear") == 0) clear_screen();
-   else if (strcmp(input, "reboot") == 0) {
+    if (len == 0) return;
+
+    // Parse command and arguments
+    cmd_args_t args = shell_parse_command(input);
+    
+    // Try new shell command parser first
+    int ret = shell_execute_command(args);
+    if (ret != -1) return; // Command handled
+    
+    // Fallback to old single-command handlers
+    const char* cmd = args.argv[0];
+    
+    if (strcmp(cmd, "ls") == 0) sys_ls();
+    else if (strcmp(cmd, "dmesg") == 0) sys_dmesg();
+    else if (strcmp(cmd, "pci") == 0) pci_scan();
+    else if (strcmp(cmd, "clear") == 0) clear_screen();
+   else if (strcmp(cmd, "reboot") == 0) {
         kprint("System rebooting...\n");
         __asm__ __volatile__("cli; hlt");
     }
-    else if (strcmp(input, "uname") == 0) {
+    else if (strcmp(cmd, "uname") == 0) {
         kprint("MyOS Linux 1.0.0-PRO (AZERTY)\n");
         kprint("Arch: i386 | Mode: Protected 32-bit\n");
     }
-   else if (strcmp(input, "touch") == 0) {
+   else if (strcmp(cmd, "touch") == 0) {
         vfs_create_file("nouveau.txt", "Ceci est un nouveau fichier.\n");
         kprint("Fichier 'nouveau.txt' cree. Tapez 'ls' pour voir.\n");
     }
-    else if (strcmp(input, "help") == 0) {
-        kprint("=== MyOS Commands ===\n");
-        kprint("ls      - List files in root directory\n");
-        kprint("cat     - Read file 'motd.txt'\n");
-        kprint("touch   - Create 'nouveau.txt'\n");
-        kprint("dmesg   - Show kernel log buffer\n");
-        kprint("pci     - Scan PCI devices\n");
-        kprint("date    - Show current time\n");
-        kprint("stats   - Show kernel statistics\n");
-        kprint("uname   - Show system info\n");
-        kprint("clear   - Clear screen\n");
-        kprint("reboot  - Reboot system\n");
-        kprint("help    - Show this help\n");
-    }
-   else if (strcmp(input, "cat") == 0) {
-        // Pour l'instant, on lit un fichier de test
+   else if (strcmp(cmd, "cat") == 0) {
         char* content = vfs_read_file("motd.txt");
         if (content) kprint(content);
         else kprint("Erreur: Fichier introuvable.\n");
     }
-    else if (strcmp(input, "date") == 0) {
+    else if (strcmp(cmd, "date") == 0) {
         show_time();
     }
-    else if (strcmp(input, "uptime") == 0) {
-        kprint("Kernel uptime: Please implement timer integration.\n");
-    }
-    else if (strcmp(input, "stats") == 0) {
+    else if (strcmp(cmd, "stats") == 0) {
         stats_print();
     }
-    else if (len > 0) {
-        kprint("bash: "); kprint(input); kprint(": command not found\n");
+    else {
+        kprint("bash: "); kprint(cmd); kprint(": command not found\n");
     }
 }
 
