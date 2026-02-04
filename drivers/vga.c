@@ -64,3 +64,27 @@ void backspace() {
         video_memory[cursor_pos * 2 + 1] = 0x07;
     }
 }
+
+/* Advanced VGA functions for shell input */
+
+void vga_clear_screen(void) {
+    clear_screen();
+}
+
+void vga_putc(char c) {
+    kprint_char(c);
+}
+
+int vga_get_cursor_row(void) {
+    return cursor_pos / 80;
+}
+
+int vga_get_cursor_col(void) {
+    return cursor_pos % 80;
+}
+
+void vga_set_cursor(int row, int col) {
+    cursor_pos = row * 80 + col;
+    if (cursor_pos < 0) cursor_pos = 0;
+    if (cursor_pos >= 80 * 25) cursor_pos = 80 * 25 - 1;
+}

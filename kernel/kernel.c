@@ -10,6 +10,7 @@
 #include "rtc.h"
 #include "stats.h"
 #include "shell.h"
+#include "shell_input.h"
 
 void handle_command(char* input) {
     int len = strlen(input);
@@ -62,28 +63,14 @@ void handle_command(char* input) {
 }
 
 void shell_loop() {
-    char buffer[128];
-    int i = 0;
-    kprint_color("root@myos:/# ", 0x0A);
+    shell_input_t input;
+    shell_input_init(&input);
 
     while(1) {
-        unsigned char sc = kbd_read_scancode();
-        if (sc == 0) continue;
-        if (sc & 0x80) { scancode_to_ascii(sc); continue; }
-
-        if (sc == 0x1C) {
-            buffer[i] = '\0';
-            newline();
-            handle_command(buffer);
-            i = 0;
-            kprint_color("root@myos:/# ", 0x0A);
-        } else if (sc == 0x0E && i > 0) {
-            i--; backspace();
-        } else {
-            char c = scancode_to_ascii(sc);
-            if (c && i < 127) { buffer[i++] = c; kprint_char(c); }
+        char* cmd = shell_input_read_line(&input, "root@myos:/# ");
+        if (cmd && *cmd != '\0') {
+            handle_command(cmd);
         }
-        for(volatile int p = 0; p < 20000; p++); 
     }
 }
 

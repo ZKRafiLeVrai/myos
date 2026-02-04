@@ -13,6 +13,7 @@ OBJ = boot/boot.o \
       kernel/mem.o \
       kernel/stats.o \
       kernel/shell.o \
+      kernel/shell_input.o \
       cpu/gdt.o \
       cpu/idt.o \
       cpu/isr.o \

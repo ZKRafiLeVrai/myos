@@ -21,6 +21,11 @@ unsigned char azerty_shift_map[] = {
     '>', 'W', 'X', 'C', 'V', 'B', 'N', '?', '.', '/', 0x15, 0, '*', 0, ' '
 };
 
+/* Extended key codes for special keys (with Ctrl, Alt, etc.) */
+static int alt_active = 0;
+static int ctrl_active = 0;
+static int num_lock = 1;
+
 unsigned char kbd_read_scancode() {
     if (inb(0x64) & 1) {
         return inb(0x60);
@@ -41,14 +46,57 @@ char scancode_to_ascii(unsigned char sc) {
         return 0; 
     }
     
+    // Gestion de CTRL (Pressé)
+    if (sc == 0x1D) {
+        ctrl_active = 1;
+        return 0;
+    }
+    
+    // Gestion de CTRL (Relâché) - scancode 0x9D
+    if (sc == 0x9D) {
+        ctrl_active = 0;
+        return 0;
+    }
+    
+    // Gestion d'ALT (Pressé)
+    if (sc == 0x38) {
+        alt_active = 1;
+        return 0;
+    }
+    
+    // Gestion d'ALT (Relâché)
+    if (sc == 0xB8) {
+        alt_active = 0;
+        return 0;
+    }
+    
     // Gestion du CAPS LOCK
     if (sc == 0x3A) { 
         caps_lock = !caps_lock; 
         return 0; 
     }
+    
+    // Gestion de NUM LOCK
+    if (sc == 0x45) {
+        num_lock = !num_lock;
+        return 0;
+    }
 
     // Ignorer le relâchement des touches normales
     if (sc & 0x80) return 0;
+
+    // Touches spéciales (non-printable) avec Ctrl
+    if (ctrl_active) {
+        switch (sc) {
+            case 0x2E: return 3;   // Ctrl+C
+            case 0x20: return 4;   // Ctrl+D
+            case 0x26: return 12;  // Ctrl+L (clear)
+            case 0x16: return 21;  // Ctrl+U (clear line)
+            case 0x2D: return 23;  // Ctrl+W (kill word)
+            case 0x01: return 27;  // Ctrl+ESC
+            default: break;
+        }
+    }
 
     // Touches spéciales (non-printable)
     switch (sc) {
@@ -56,6 +104,9 @@ char scancode_to_ascii(unsigned char sc) {
         case 0x0E: return '\b'; // Backspace
         case 0x0F: return '\t'; // Tab
         case 0x1C: return '\n'; // Enter
+        case 0x37: return '*';  // * (numpad)
+        case 0x4A: return '-';  // - (numpad)
+        case 0x4E: return '+';  // + (numpad)
         default: break;
     }
 
