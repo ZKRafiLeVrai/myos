@@ -44,23 +44,28 @@ void shell_input_add_history(shell_input_t *input, const char *cmd) {
 }
 
 int shell_input_read_key(void) {
-    unsigned char scancode = kbd_read_scancode();
-    if (scancode == 0) return 0;
-    
-    /* Check if it's an extended key (preceded by 0xE0) */
     static int extended = 0;
+    
+    unsigned char scancode = kbd_read_scancode();
+    if (scancode == 0) {
+        return 0;  /* No key available */
+    }
+    
+    /* Check if it's an extended key prefix (0xE0) */
     if (scancode == 0xE0) {
         extended = 1;
-        return 0;
+        return 0;  /* Wait for next scancode, which we'll get on next call */
     }
     
     /* Ignore key releases (high bit set) */
     if (scancode & 0x80) {
-        extended = 0;  // Clear extended flag on key release
+        if (extended) {
+            extended = 0;
+        }
         return 0;
     }
     
-    /* Convert extended scancodes to key codes */
+    /* Convert extended scancodes to special key codes */
     if (extended) {
         extended = 0;
         switch (scancode) {
@@ -78,13 +83,14 @@ int shell_input_read_key(void) {
         }
     }
     
-    /* Convert regular scancode to ASCII */
+    /* Convert regular scancode to ASCII or special key code */
     return scancode_to_ascii(scancode);
 }
 
 static void redraw_line(shell_input_t *input, const char *prompt) {
     /* Save cursor position */
     int saved_row = vga_get_cursor_row();
+    int prompt_len = strlen(prompt);
     
     /* Move to start of line and clear it */
     vga_set_cursor(saved_row, 0);
@@ -94,8 +100,7 @@ static void redraw_line(shell_input_t *input, const char *prompt) {
     
     /* Redraw prompt and input */
     vga_set_cursor(saved_row, 0);
-    vga_write(prompt, strlen(prompt));
-    int prompt_len = strlen((char *)prompt);
+    vga_write(prompt, prompt_len);
     
     /* Display buffer starting from position that fits on screen */
     int display_start = 0;
@@ -118,8 +123,12 @@ char* shell_input_read_line(shell_input_t *input, const char *prompt) {
     shell_input_clear(input);
     input->screen_row = vga_get_cursor_row();
     
+    vga_write(prompt, strlen(prompt));
+    
     while (1) {
         int key = shell_input_read_key();
+        
+        /* No key available - try again */
         if (key == 0) continue;
         
         /* Printable ASCII character */
@@ -137,6 +146,7 @@ char* shell_input_read_line(shell_input_t *input, const char *prompt) {
             input->buffer_len++;
             input->history_index = -1; /* Exit history mode */
             
+            vga_putc((char)key);
             redraw_line(input, prompt);
         }
         /* Enter key - command ready */
