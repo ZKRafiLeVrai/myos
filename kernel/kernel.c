@@ -23,12 +23,27 @@ void handle_command(char* input) {
         kprint("System rebooting...\n");
         __asm__ __volatile__("cli; hlt");
     }
-    else if (strcmp(input, "uname") == 0) kprint("MyOS Linux 1.0.0-PRO (AZERTY)\n");
+    else if (strcmp(input, "uname") == 0) {
+        kprint("MyOS Linux 1.0.0-PRO (AZERTY)\n");
+        kprint("Arch: i386 | Mode: Protected 32-bit\n");
+    }
    else if (strcmp(input, "touch") == 0) {
         vfs_create_file("nouveau.txt", "Ceci est un nouveau fichier.\n");
         kprint("Fichier 'nouveau.txt' cree. Tapez 'ls' pour voir.\n");
     }
-    else if (strcmp(input, "help") == 0) kprint("Commands: ls, dmesg, pci, clear, uname, help\n");
+    else if (strcmp(input, "help") == 0) {
+        kprint("=== MyOS Commands ===\n");
+        kprint("ls      - List files in root directory\n");
+        kprint("cat     - Read file 'motd.txt'\n");
+        kprint("touch   - Create 'nouveau.txt'\n");
+        kprint("dmesg   - Show kernel log buffer\n");
+        kprint("pci     - Scan PCI devices\n");
+        kprint("date    - Show current time\n");
+        kprint("uname   - Show system info\n");
+        kprint("clear   - Clear screen\n");
+        kprint("reboot  - Reboot system\n");
+        kprint("help    - Show this help\n");
+    }
    else if (strcmp(input, "cat") == 0) {
         // Pour l'instant, on lit un fichier de test
         char* content = vfs_read_file("motd.txt");
@@ -37,6 +52,9 @@ void handle_command(char* input) {
     }
     else if (strcmp(input, "date") == 0) {
         show_time();
+    }
+    else if (strcmp(input, "uptime") == 0) {
+        kprint("Kernel uptime: Please implement timer integration.\n");
     }
     else if (len > 0) {
         kprint("bash: "); kprint(input); kprint(": command not found\n");

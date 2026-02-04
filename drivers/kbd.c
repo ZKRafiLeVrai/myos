@@ -50,6 +50,15 @@ char scancode_to_ascii(unsigned char sc) {
     // Ignorer le relâchement des touches normales
     if (sc & 0x80) return 0;
 
+    // Touches spéciales (non-printable)
+    switch (sc) {
+        case 0x01: return 27;   // ESC
+        case 0x0E: return '\b'; // Backspace
+        case 0x0F: return '\t'; // Tab
+        case 0x1C: return '\n'; // Enter
+        default: break;
+    }
+
     // Protection contre les index invalides
     if (sc >= 58) return 0;
 
