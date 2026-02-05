@@ -4,7 +4,7 @@
 /* --- États des touches --- */
 static int shift_active = 0;
 static int caps_lock = 0;
-static int extended_key = 0;
+int extended_key = 0;  /* Shared with shell_input.c via extern in kbd.h */
 
 /* --- Mapping AZERTY (Minuscules) --- */
 unsigned char azerty_map[] = {
