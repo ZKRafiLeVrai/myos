@@ -4,6 +4,7 @@
 /* --- États des touches --- */
 static int shift_active = 0;
 static int caps_lock = 0;
+static int extended_key = 0;
 
 /* --- Mapping AZERTY (Minuscules) --- */
 unsigned char azerty_map[] = {
@@ -25,13 +26,19 @@ unsigned char azerty_shift_map[] = {
 static int alt_active = 0;
 static int ctrl_active = 0;
 static int num_lock = 1;
-static int extended_key = 0;
 
 unsigned char kbd_read_scancode() {
+    unsigned char sc = 0;
     if (inb(0x64) & 1) {
-        return inb(0x60);
+        sc = inb(0x60);
+        
+        // Handle extended key prefix (0xE0)
+        if (sc == 0xE0) {
+            extended_key = 1;
+            return 0;  // Ignore prefix, wait for next scancode
+        }
     }
-    return 0;
+    return sc;
 }
 
 char scancode_to_ascii(unsigned char sc) {

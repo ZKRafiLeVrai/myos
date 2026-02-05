@@ -44,30 +44,21 @@ void shell_input_add_history(shell_input_t *input, const char *cmd) {
 }
 
 int shell_input_read_key(void) {
-    static int extended = 0;
-    
     unsigned char scancode = kbd_read_scancode();
+    
     if (scancode == 0) {
         return 0;  /* No key available */
     }
     
-    /* Check if it's an extended key prefix (0xE0) */
-    if (scancode == 0xE0) {
-        extended = 1;
-        return 0;  /* Wait for next scancode, which we'll get on next call */
-    }
-    
     /* Ignore key releases (high bit set) */
     if (scancode & 0x80) {
-        if (extended) {
-            extended = 0;
-        }
         return 0;
     }
     
-    /* Convert extended scancodes to special key codes */
-    if (extended) {
-        extended = 0;
+    /* Check if last scancode was an extended key prefix (0xE0)
+       The kbd driver sets extended_key flag when it sees 0xE0 */
+    if (extended_key) {
+        extended_key = 0;
         switch (scancode) {
             case 0x48: return KEY_UP;
             case 0x50: return KEY_DOWN;
