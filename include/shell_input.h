@@ -11,17 +11,17 @@
 #define SHELL_INPUT_MAX_LEN    256
 #define SHELL_INPUT_HISTORY    10
 
-/* Extended key codes for special keys */
-#define KEY_UP                 0x48
-#define KEY_DOWN               0x50
-#define KEY_LEFT               0x4B
-#define KEY_RIGHT              0x4D
-#define KEY_DELETE             0x53
-#define KEY_HOME               0x47
-#define KEY_END                0x4F
-#define KEY_PAGE_UP            0x49
-#define KEY_PAGE_DOWN          0x51
-#define KEY_INSERT             0x52
+/* Extended key codes for special keys (must be > 127 to not conflict with ASCII) */
+#define KEY_UP                 200
+#define KEY_DOWN               201
+#define KEY_LEFT               202
+#define KEY_RIGHT              203
+#define KEY_DELETE             204
+#define KEY_HOME               205
+#define KEY_END                206
+#define KEY_PAGE_UP            207
+#define KEY_PAGE_DOWN          208
+#define KEY_INSERT             209
 
 /* Control characters */
 #define CTRL_C                 3

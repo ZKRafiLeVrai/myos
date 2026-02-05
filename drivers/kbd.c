@@ -1,5 +1,6 @@
 #include "kbd.h"
 #include "io.h"
+#include "shell_input.h"
 
 /* --- États des touches --- */
 static int shift_active = 0;
@@ -110,19 +111,17 @@ char scancode_to_ascii(unsigned char sc) {
     if (extended_key) {
         extended_key = 0;
         switch (sc) {
-            case 0x48:  // UP arrow
-            case 0x50:  // DOWN arrow
-            case 0x4B:  // LEFT arrow
-            case 0x4D:  // RIGHT arrow
-            case 0x47:  // HOME key
-            case 0x4F:  // END key
-            case 0x49:  // PAGE UP
-            case 0x51:  // PAGE DOWN
-            case 0x52:  // INSERT
-            case 0x53:  // DELETE
-                return 0;  // Return 0 - let shell_input_read_key() handle it
-            default: 
-                return 0;
+            case 0x48: return KEY_UP;      // UP arrow
+            case 0x50: return KEY_DOWN;    // DOWN arrow
+            case 0x4B: return KEY_LEFT;    // LEFT arrow
+            case 0x4D: return KEY_RIGHT;   // RIGHT arrow
+            case 0x47: return KEY_HOME;    // HOME key
+            case 0x4F: return KEY_END;     // END key
+            case 0x49: return KEY_PAGE_UP; // PAGE UP
+            case 0x51: return KEY_PAGE_DOWN; // PAGE DOWN
+            case 0x52: return KEY_INSERT;  // INSERT
+            case 0x53: return KEY_DELETE;  // DELETE
+            default: return 0;
         }
     }
     
