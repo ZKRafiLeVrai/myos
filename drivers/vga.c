@@ -55,6 +55,9 @@ void scroll_screen() {
 
 void newline() {
     cursor_pos = ((cursor_pos / 80) + 1) * 80;
+    if (cursor_pos >= 80 * 25) {
+        scroll_screen();
+    }
 }
 
 void backspace() {
