@@ -130,6 +130,9 @@ int shell_execute_command(cmd_args_t args) {
             kprint("echo    - Print text to console\n");
             kprint("test    - Test file/directory existence\n");
             kprint("rm      - Remove file\n");
+            kprint("cp      - Copy file (cp <src> <dst>)\n");
+            kprint("mv      - Move/rename file (mv <src> <dst>)\n");
+            kprint("hexdump - Show file in hexadecimal\n");
             kprint("pwd     - Print working directory\n");
             kprint("whoami  - Show current user\n");
             kprint("dmesg   - Show kernel log buffer\n");
@@ -141,6 +144,51 @@ int shell_execute_command(cmd_args_t args) {
             kprint("reboot  - Reboot system\n");
             kprint("help    - Show this help (or 'help <cmd>')\n");
         }
+        return 0;
+    }
+    
+    else if (strcmp(cmd, "cp") == 0) {
+        if (args.argc < 3) {
+            printk(LOG_ERR, "cp: usage: cp <src> <dst>");
+            return 1;
+        }
+        return vfs_copy_file(args.argv[1], args.argv[2]) ? 0 : 1;
+    }
+    
+    else if (strcmp(cmd, "mv") == 0) {
+        if (args.argc < 3) {
+            printk(LOG_ERR, "mv: usage: mv <src> <dst>");
+            return 1;
+        }
+        return vfs_rename_file(args.argv[1], args.argv[2]) ? 0 : 1;
+    }
+    
+    else if (strcmp(cmd, "hexdump") == 0) {
+        if (args.argc < 2) {
+            printk(LOG_ERR, "hexdump: usage: hexdump <filename>");
+            return 1;
+        }
+        vfs_hexdump_file(args.argv[1]);
+        return 0;
+    }
+    
+    else if (strcmp(cmd, "uptime") == 0) {
+        /* Get uptime from vfs_get_uptime() - connected to timer */
+        uint32_t uptime = vfs_get_uptime();
+        uint32_t hours = uptime / 3600;
+        uint32_t minutes = (uptime % 3600) / 60;
+        uint32_t seconds = uptime % 60;
+        printk(LOG_INFO, "Uptime: %d:%02d:%02d", hours, minutes, seconds);
+        return 0;
+    }
+    
+    else if (strcmp(cmd, "free") == 0) {
+        /* Show memory stats */
+        extern int placement_address;  /* From mem.c */
+        int used_kb = placement_address / 1024;
+        int total_kb = 4096;  /* 4MB heap */
+        int free_kb = total_kb - used_kb;
+        printk(LOG_INFO, "Memory: used=%dKB, free=%dKB, total=%dKB", used_kb, free_kb, total_kb);
         return 0;
     }
     

@@ -97,3 +97,12 @@ void vga_write(const char* str, int len) {
         kprint_char(str[i]);
     }
 }
+
+void vga_draw_cursor(void) {
+    /* Draw a visible cursor at current position */
+    if (cursor_pos < 80 * 25) {
+        /* Draw underscore character with bright white */
+        video_memory[cursor_pos * 2] = '_';
+        video_memory[cursor_pos * 2 + 1] = VGA_BRIGHT_WHITE;
+    }
+}

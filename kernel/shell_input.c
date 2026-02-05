@@ -238,6 +238,57 @@ char* shell_input_read_line(shell_input_t *input, const char *prompt) {
             input->screen_row = 0;
             vga_set_cursor(0, 0);
             vga_write(prompt, strlen(prompt));
+            input->cursor_pos = 0;
+            input->buffer_len = 0;
+            memset(input->buffer, 0, SHELL_INPUT_MAX_LEN);
+        }
+        /* Ctrl+U - kill line (clear from start to cursor) */
+        else if (key == CTRL_U) {
+            for (int i = 0; i < input->buffer_len - input->cursor_pos; i++) {
+                input->buffer[i] = input->buffer[input->cursor_pos + i];
+            }
+            input->buffer_len -= input->cursor_pos;
+            input->cursor_pos = 0;
+            input->history_index = -1;
+            redraw_line(input, prompt);
+        }
+        /* Ctrl+K - kill to end of line */
+        else if (key == CTRL_K) {
+            input->buffer_len = input->cursor_pos;
+            input->history_index = -1;
+            redraw_line(input, prompt);
+        }
+        /* Ctrl+A - move to start */
+        else if (key == CTRL_A) {
+            input->cursor_pos = 0;
+            redraw_line(input, prompt);
+        }
+        /* Ctrl+E - move to end */
+        else if (key == CTRL_E) {
+            input->cursor_pos = input->buffer_len;
+            redraw_line(input, prompt);
+        }
+        /* Ctrl+W - delete word backwards */
+        else if (key == CTRL_W) {
+            if (input->cursor_pos > 0) {
+                int end = input->cursor_pos;
+                /* Skip spaces */
+                while (input->cursor_pos > 0 && input->buffer[input->cursor_pos - 1] == ' ') {
+                    input->cursor_pos--;
+                }
+                /* Delete word */
+                while (input->cursor_pos > 0 && input->buffer[input->cursor_pos - 1] != ' ') {
+                    input->cursor_pos--;
+                }
+                /* Shift remaining text */
+                for (int i = input->cursor_pos; i < input->buffer_len - (end - input->cursor_pos); i++) {
+                    input->buffer[i] = input->buffer[i + (end - input->cursor_pos)];
+                }
+                input->buffer_len -= (end - input->cursor_pos);
+                input->history_index = -1;
+                redraw_line(input, prompt);
+            }
+        }
             int prompt_len = strlen((char *)prompt);
             for (int i = 0; i < input->buffer_len; i++) {
                 vga_putc(input->buffer[i]);
