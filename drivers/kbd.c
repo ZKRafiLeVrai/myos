@@ -100,6 +100,12 @@ char scancode_to_ascii(unsigned char sc) {
     // Ignorer le relâchement des touches normales
     if (sc & 0x80) return 0;
 
+    // Reconnaître le préfixe 0xE0 pour les touches étendues
+    if (sc == 0xE0) {
+        extended_key = 1;
+        return 0;
+    }
+
     // Touches étendues (flèches, etc.) - précédées par 0xE0
     if (extended_key) {
         extended_key = 0;
